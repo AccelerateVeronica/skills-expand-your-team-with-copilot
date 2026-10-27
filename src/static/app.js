@@ -36,18 +36,27 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateThemeToggle() {
     const isDarkMode = document.documentElement.dataset.theme === "dark";
     themeToggle.textContent = isDarkMode ? "☀️ Light mode" : "🌙 Dark mode";
-    themeToggle.setAttribute("aria-label", `Switch to ${isDarkMode ? "light" : "dark"} mode`);
+    themeToggle.setAttribute("aria-label", "Dark mode");
     themeToggle.setAttribute("aria-pressed", isDarkMode);
   }
 
-  document.documentElement.dataset.theme =
-    localStorage.getItem("theme") === "dark" ? "dark" : "light";
+  let savedTheme;
+  try {
+    savedTheme = localStorage.getItem("theme");
+  } catch {
+    savedTheme = null;
+  }
+  document.documentElement.dataset.theme = savedTheme === "dark" ? "dark" : "light";
   updateThemeToggle();
   themeToggle.addEventListener("click", () => {
     const theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem("theme", theme);
     updateThemeToggle();
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      // Theme switching remains available when the preference cannot be saved.
+    }
   });
 
   // Activity categories with corresponding colors
