@@ -12,8 +12,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("activity-search");
   const searchButton = document.getElementById("search-button");
   const categoryFilters = document.querySelectorAll(".category-filter");
+  const difficultyFilters = document.querySelectorAll(".difficulty-filter");
   const dayFilters = document.querySelectorAll(".day-filter");
   const timeFilters = document.querySelectorAll(".time-filter");
+  difficultyFilters.forEach((button) => {
+    button.setAttribute(
+      "aria-pressed",
+      String(button.classList.contains("active"))
+    );
+  });
 
   // Authentication elements
   const loginButton = document.getElementById("login-button");
@@ -55,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // State for activities and filters
   let allActivities = {};
   let currentFilter = "all";
+  let currentDifficulty = "All";
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
@@ -397,6 +405,12 @@ document.addEventListener("DOMContentLoaded", () => {
         queryParams.push(`day=${encodeURIComponent(currentDay)}`);
       }
 
+      if (currentDifficulty) {
+        queryParams.push(
+          `difficulty=${encodeURIComponent(currentDifficulty)}`
+        );
+      }
+
       // Handle time range filter
       if (currentTimeRange) {
         const range = timeRanges[currentTimeRange];
@@ -525,6 +539,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ${typeInfo.label}
       </span>
     `;
+    const difficultyHtml = details.difficulty
+      ? `<p><strong>Difficulty:</strong> ${details.difficulty}</p>`
+      : "";
 
     // Create capacity indicator
     const capacityIndicator = `
@@ -542,6 +559,7 @@ document.addEventListener("DOMContentLoaded", () => {
     activityCard.innerHTML = `
       ${tagHtml}
       <h4>${name}</h4>
+      ${difficultyHtml}
       <p>${details.description}</p>
       <p class="tooltip">
         <strong>Schedule:</strong> ${formattedSchedule}
@@ -632,6 +650,19 @@ document.addEventListener("DOMContentLoaded", () => {
       // Update current filter and display filtered activities
       currentFilter = button.dataset.category;
       displayFilteredActivities();
+    });
+  });
+
+  // Add event listeners to difficulty filter buttons
+  difficultyFilters.forEach((button) => {
+    button.addEventListener("click", () => {
+      difficultyFilters.forEach((btn) => {
+        const isSelected = btn === button;
+        btn.classList.toggle("active", isSelected);
+        btn.setAttribute("aria-pressed", String(isSelected));
+      });
+      currentDifficulty = button.dataset.difficulty;
+      fetchActivities();
     });
   });
 
